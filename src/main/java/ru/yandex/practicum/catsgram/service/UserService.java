@@ -5,57 +5,43 @@ import ru.yandex.practicum.catsgram.exception.InvalidEmailException;
 import ru.yandex.practicum.catsgram.exception.UserAlreadyExistException;
 import ru.yandex.practicum.catsgram.model.User;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 @Service
 public class UserService {
+    private final Map<String, User> users = new HashMap<>();
 
-    Set<User> users = new HashSet<>();
-
-    public Set<User> findUsers() {
-        return users;
+    public Collection<User> findAll() {
+        return users.values();
     }
 
     public User createUser(User user) {
-        for (User userSet : users) {
-            if (userSet.getEmail().equals(user.getEmail())) {
-                final UserAlreadyExistException ex = new UserAlreadyExistException("Email already exist");
-                System.out.println(ex.getMessage());
-            }
+        if (user.getEmail() == null || user.getEmail().isBlank()) {
+            throw new InvalidEmailException("Адрес электронной почты не может быть пустым.");
         }
-        if (user.getEmail() == null) {
-            final InvalidEmailException ex = new InvalidEmailException("Email line is null");
-            System.out.println(ex.getMessage());
-        } else {
-            users.add(user);
+        if (users.containsKey(user.getEmail())) {
+            throw new UserAlreadyExistException("Пользователь с электронной почтой " +
+                    user.getEmail() + " уже зарегистрирован.");
         }
+        users.put(user.getEmail(), user);
         return user;
     }
 
-    public User updateUser (User user) {
-        for (User userSet : users) {
-            if (userSet.getEmail().equals(user.getEmail())) {
-                users.remove(userSet);
-                users.add(user);
-            }
+    public User updateUser(User user) {
+        if (user.getEmail() == null || user.getEmail().isBlank()) {
+            throw new InvalidEmailException("Адрес электронной почты не может быть пустым.");
         }
-        if (user.getEmail() == null) {
-            final InvalidEmailException ex = new InvalidEmailException("Email line is null");
-            System.out.println(ex.getMessage());
-        } else {
-            users.add(user);
-        }
+        users.put(user.getEmail(), user);
+
         return user;
     }
 
-    public User findUserByEmail (String email) {
-        for (User us : users) {
-            if (us.getEmail().equals(email)) {
-                return us;
-            }
+    public User findUserByEmail(String email) {
+        if (email == null) {
+            return null;
         }
-        return null;
+        return users.get(email);
     }
 }

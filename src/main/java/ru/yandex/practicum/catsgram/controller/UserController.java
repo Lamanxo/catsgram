@@ -2,42 +2,38 @@ package ru.yandex.practicum.catsgram.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.catsgram.exception.InvalidEmailException;
-import ru.yandex.practicum.catsgram.exception.UserAlreadyExistException;
 import ru.yandex.practicum.catsgram.model.User;
 import ru.yandex.practicum.catsgram.service.UserService;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.Collection;
 
 @RestController
+@RequestMapping("/users")
 public class UserController {
-
-    private UserService us = new UserService();
+    private final UserService userService;
 
     @Autowired
     public UserController(UserService userService) {
-        this.us = userService;
+        this.userService = userService;
     }
 
-    @GetMapping("/users")
-    public Set<User> findUsers() {
-
-        return us.findUsers();
+    @GetMapping
+    public Collection<User> findAll() {
+        return userService.findAll();
     }
 
-    @PostMapping(value = "/users")
-    public User createUser (@RequestBody User user) {
-        return us.createUser(user);
+    @PostMapping
+    public User createUser(@RequestBody User user) {
+        return userService.createUser(user);
     }
 
-    @PutMapping(value = "/users")
+    @PutMapping
     public User updateUser(@RequestBody User user) {
-        return us.updateUser(user);
+        return userService.updateUser(user);
     }
 
-
-
+    @GetMapping("/user/{userMail}")
+    public User getUser(@PathVariable("userMail") String userMail){
+        return userService.findUserByEmail(userMail);
+    }
 }
